@@ -146,15 +146,17 @@ void stm32_init(
             uint32_t osc32_freq)
 {
     MemoryRegion *address_space_mem = get_system_memory();
+    MemoryRegion *flash_alias = g_malloc(sizeof(MemoryRegion));
     qemu_irq *pic;
     int i;
 
-    pic = armv7m_init(address_space_mem, flash_size, ram_size,    kernel_filename, "cortex-m3");
+    pic = armv7m_init(address_space_mem, flash_size, ram_size, kernel_filename, "cortex-m3");
 
     /*DeviceState *flash_dev = qdev_create(NULL, "stm32_flash");
     qdev_prop_set_uint32(flash_dev, "size", 0x1FFFF);
     qdev_init_nofail(flash_dev);
     sysbus_mmio_map(sysbus_from_qdev(flash_dev), 0, 0x08000000);*/
+    memory_region_init_alias(flash_alias, "stm32_flash", address_space_mem, 0x08000000, 0x1FFFF);
 
     DeviceState *rcc_dev = qdev_create(NULL, "stm32_rcc");
     qdev_prop_set_uint32(rcc_dev, "osc_freq", osc_freq);
